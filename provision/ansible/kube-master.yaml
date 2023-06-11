@@ -19,6 +19,17 @@
         name: suporte
         shell: /bin/bash
         password : $1$QbUARykG$p2nthVG8AkDvabKPHwboa1
+
+    - name: Adicionar suporte ao grupo sudo
+      lineinfile:
+        dest: /etc/sudoers
+        line: 'suporte ALL=(ALL:ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+
+    - name: Reiniciar o servico sshd
+      service:
+        name: sshd
+        state: restarted
         
     - name: Instala pacotes que permitem que o apt seja usado sobre HTTPS
       apt:
@@ -38,13 +49,16 @@
         - git
         - vim
         - nano
-        
-    - name: Clona repositório com os arquivos do curso para a HOME do usuario suporte
-      git:
-        repo: 'https://github.com/4linux/4541.git'
-        dest: /home/suporte/4541
-      become: true
-      become_user: suporte
+
+    - name: Remove o diretório se ele já existir
+      file:
+        path: /home/suporte/4541
+        state: absent
+
+    - name: Clona repositorio com os arquivos do curso para a HOME do usuario suporte
+      shell: sudo -u suporte git clone https://github.com/4linux/4541.git /home/suporte/4541
+      args:
+        executable: /bin/bash
 
     - name: Cria o diretório .ssh
       file:
