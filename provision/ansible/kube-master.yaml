@@ -4,85 +4,88 @@
   become_user: root
   become_method: sudo
   tasks:
-    - name: Garantindo /etc/hosts
-      lineinfile:
-        path: /etc/hosts
-        line: "{{ item }}"
-      with_items:
-        - 172.16.1.100 kube-master
-        - 172.16.1.101 kube-node1
-        - 172.16.1.102 kube-node2
-        - 172.16.1.103 registry
+    - name: Executa Tarefas Communs nos nós do Kubernetes
+      ansible.builtin.include_tasks:
+        common-tasks.yaml
+    # - name: Garantindo /etc/hosts
+    #   lineinfile:
+    #     path: /etc/hosts
+    #     line: "{{ item }}"
+    #   with_items:
+    #     - 172.16.1.100 kube-master
+    #     - 172.16.1.101 kube-node1
+    #     - 172.16.1.102 kube-node2
+    #     - 172.16.1.103 registry
 
-    - name: Adiciona usuario suporte
-      user:
-        name: suporte
-        shell: /bin/bash
-        password : $1$QbUARykG$p2nthVG8AkDvabKPHwboa1
+    # - name: Adiciona usuario suporte
+    #   user:
+    #     name: suporte
+    #     shell: /bin/bash
+    #     password : $1$QbUARykG$p2nthVG8AkDvabKPHwboa1
 
-    - name: Adicionar suporte ao grupo sudo
-      lineinfile:
-        dest: /etc/sudoers
-        line: 'suporte ALL=(ALL:ALL) NOPASSWD: ALL'
-        validate: 'visudo -cf %s'
+    # - name: Adicionar suporte ao grupo sudo
+    #   lineinfile:
+    #     dest: /etc/sudoers
+    #     line: 'suporte ALL=(ALL:ALL) NOPASSWD: ALL'
+    #     validate: 'visudo -cf %s'
 
-    - name: Reiniciar o servico sshd
-      service:
-        name: sshd
-        state: restarted
+    # - name: Reiniciar o servico sshd
+    #   service:
+    #     name: sshd
+    #     state: restarted
         
-    - name: Instala pacotes que permitem que o apt seja usado sobre HTTPS
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-        - apt-transport-https
-        - ca-certificates
-        - curl
-        - gnupg-agent
-        - software-properties-common
-        - mysql-client
-        - nfs-common
-        - snapd
-        - git
-        - vim
-        - nano
+    # - name: Instala pacotes que permitem que o apt seja usado sobre HTTPS
+    #   apt:
+    #     name: "{{ packages }}"
+    #     state: present
+    #     update_cache: yes
+    #   vars:
+    #     packages:
+    #     - apt-transport-https
+    #     - ca-certificates
+    #     - curl
+    #     - gnupg-agent
+    #     - software-properties-common
+    #     - mysql-client
+    #     - nfs-common
+    #     - snapd
+    #     - git
+    #     - vim
+    #     - nano
 
-    - name: Remove o diretório se ele já existir
-      file:
-        path: /home/suporte/4541
-        state: absent
+    # - name: Remove o diretório se ele já existir
+    #   file:
+    #     path: /home/suporte/4541
+    #     state: absent
 
-    - name: Clona repositorio com os arquivos do curso para a HOME do usuario suporte
-      shell: sudo -u suporte git clone https://github.com/4linux/4541.git /home/suporte/4541
-      args:
-        executable: /bin/bash
+    # - name: Clona repositorio com os arquivos do curso para a HOME do usuario suporte
+    #   shell: sudo -u suporte git clone https://github.com/4linux/4541.git /home/suporte/4541
+    #   args:
+    #     executable: /bin/bash
 
-    - name: Cria o diretório .ssh
-      file:
-        path: /home/suporte/.ssh
-        state: directory
-        owner: suporte
-        group: suporte
-        mode: '0755'
+    # - name: Cria o diretório .ssh
+    #   file:
+    #     path: /home/suporte/.ssh
+    #     state: directory
+    #     owner: suporte
+    #     group: suporte
+    #     mode: '0755'
         
-    - name: Criando o arquivo id_rsa
-      copy:
-        src: files/id_rsa
-        dest: /home/suporte/.ssh/id_rsa
-        owner: suporte
-        group: suporte
-        mode: 0600
+    # - name: Criando o arquivo id_rsa
+    #   copy:
+    #     src: files/id_rsa
+    #     dest: /home/suporte/.ssh/id_rsa
+    #     owner: suporte
+    #     group: suporte
+    #     mode: 0600
         
-    - name: Criando o arquivo id_rsa.pub
-      copy:
-        src: files/id_rsa.pub
-        dest: /home/suporte/.ssh/id_rsa.pub
-        owner: suporte
-        group: suporte
-        mode: 0644        
+    # - name: Criando o arquivo id_rsa.pub
+    #   copy:
+    #     src: files/id_rsa.pub
+    #     dest: /home/suporte/.ssh/id_rsa.pub
+    #     owner: suporte
+    #     group: suporte
+    #     mode: 0644        
 
     - name: Add Variaveis para Versão recente do etcdclient
       set_fact:
@@ -132,115 +135,115 @@
         dest: "{{ ubuntu_binary_dir }}/etcdctl"
         mode: "0755"
 
-    - name: Adiciona uma chave de assinatura apt para o Docker
-      apt_key:
-        url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+    # - name: Adiciona uma chave de assinatura apt para o Docker
+    #   apt_key:
+    #     url: https://download.docker.com/linux/ubuntu/gpg
+    #     state: present
 
-    - name: Adiciona repositorio apt para versao estavel
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
-        state: present
+    # - name: Adiciona repositorio apt para versao estavel
+    #   apt_repository:
+    #     repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+    #     state: present
 
-    - name: Instala o Docker e suas dependencias
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-        - docker-ce
-        - docker-ce-cli
-        - containerd.io
-      notify:
-        - docker status
+    # - name: Instala o Docker e suas dependencias
+    #   apt:
+    #     name: "{{ packages }}"
+    #     state: present
+    #     update_cache: yes
+    #   vars:
+    #     packages:
+    #     - docker-ce
+    #     - docker-ce-cli
+    #     - containerd.io
+    #   notify:
+    #     - docker status
 
-    - name: Adiciona o usuario suporte no grupo docker
-      user:
-        name: suporte
-        group: docker
+    # - name: Adiciona o usuario suporte no grupo docker
+    #   user:
+    #     name: suporte
+    #     group: docker
 
-    - name: Cria o diretório registry:5000
-      file:
-        path: /etc/docker/certs.d/registry:5000
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
+    # - name: Cria o diretório registry:5000
+    #   file:
+    #     path: /etc/docker/certs.d/registry:5000
+    #     state: directory
+    #     owner: root
+    #     group: root
+    #     mode: '0755'
 
-    - name: Criando o arquivo ca.crt
-      copy:
-        src: files/ca.crt
-        dest: /etc/docker/certs.d/registry:5000
-        owner: suporte
-        group: suporte
-        mode: '0644'
+    # - name: Criando o arquivo ca.crt
+    #   copy:
+    #     src: files/ca.crt
+    #     dest: /etc/docker/certs.d/registry:5000
+    #     owner: suporte
+    #     group: suporte
+    #     mode: '0644'
         
-    - name: Criando o arquivo daemon.json
-      copy:
-        src: files/daemon.json
-        dest: /etc/docker/
-        owner: root
-        group: root
-        mode: '0644'
+    # - name: Criando o arquivo daemon.json
+    #   copy:
+    #     src: files/daemon.json
+    #     dest: /etc/docker/
+    #     owner: root
+    #     group: root
+    #     mode: '0644'
    
-    - name: Cria o diretorio docker.service.d
-      file:
-        path: /etc/systemd/system/docker.service.d
-        state: directory
-        owner: root
-        group: root
-        mode: '0755'
+    # - name: Cria o diretorio docker.service.d
+    #   file:
+    #     path: /etc/systemd/system/docker.service.d
+    #     state: directory
+    #     owner: root
+    #     group: root
+    #     mode: '0755'
         
-    - name: Reinicia o Docker
-      service:
-        name: docker
-        daemon_reload: yes
-        state: restarted
+    # - name: Reinicia o Docker
+    #   service:
+    #     name: docker
+    #     daemon_reload: yes
+    #     state: restarted
 
-    - name: Remove swap do arquivo /etc/fstab
-      mount:
-        name: "{{ item }}"
-        fstype: swap
-        state: absent
-      with_items:
-        - swap
-        - none
+    # - name: Remove swap do arquivo /etc/fstab
+    #   mount:
+    #     name: "{{ item }}"
+    #     fstype: swap
+    #     state: absent
+    #   with_items:
+    #     - swap
+    #     - none
 
-    - name: Desativa o swap
-      command: swapoff -a
-      when: ansible_swaptotal_mb > 0
+    # - name: Desativa o swap
+    #   command: swapoff -a
+    #   when: ansible_swaptotal_mb > 0
 
-    - name: Adiciona uma chave de assinatura apt para o Kubernetes
-      apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        state: present
+    # - name: Adiciona uma chave de assinatura apt para o Kubernetes
+    #   apt_key:
+    #     url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    #     state: present
 
-    - name: Adiciona repositorio apt para Kubernetes
-      apt_repository:
-        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-        state: present
-        filename: kubernetes.list
+    # - name: Adiciona repositorio apt para Kubernetes
+    #   apt_repository:
+    #     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+    #     state: present
+    #     filename: kubernetes.list
 
-    - name: Instala os pacotes do Kubernetes
-      apt:
-        name: "{{ packages }}"
-        state: present
-        update_cache: yes
-      vars:
-        packages:
-        - kubelet=1.25.10-00
-        - kubeadm=1.25.10-00
-        - kubectl=1.25.10-00
+    # - name: Instala os pacotes do Kubernetes
+    #   apt:
+    #     name: "{{ packages }}"
+    #     state: present
+    #     update_cache: yes
+    #   vars:
+    #     packages:
+    #     - kubelet=1.25.10-00
+    #     - kubeadm=1.25.10-00
+    #     - kubectl=1.25.10-00
 
-    - name: Reinicia o kubelet
-      service:
-        name: kubelet
-        daemon_reload: yes
-        state: restarted
+    # - name: Reinicia o kubelet
+    #   service:
+    #     name: kubelet
+    #     daemon_reload: yes
+    #     state: restarted
 
     - name: Inicializa o cluster Kubernetes atraves da ferramenta kubeadm
-      shell: kubeadm init --apiserver-advertise-address="172.16.1.100" --apiserver-cert-extra-sans="172.16.1.100" --node-name kube-master --pod-network-cidr=192.168.0.0/16 --kubernetes-version=1.21.1 --ignore-preflight-errors=all > /opt/init_cluster
+      shell: kubeadm init --apiserver-advertise-address="172.16.1.100" --apiserver-cert-extra-sans="172.16.1.100" --node-name kube-master --pod-network-cidr=192.168.0.0/16 --kubernetes-version=1.25.10 --cri-socket unix:///var/run/cri-dockerd.sock --ignore-preflight-errors=all > /opt/init_cluster
       args:
         creates: /opt/init_cluster
         
