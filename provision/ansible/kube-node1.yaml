@@ -40,7 +40,9 @@
       git:
         repo: 'https://github.com/4linux/4541.git'
         dest: /home/suporte/4541
-        
+      become: true
+      become_user: suporte
+              
     - name: Cria o diretório .ssh
       file:
         path: /home/suporte/.ssh
