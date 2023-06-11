@@ -160,9 +160,9 @@
         update_cache: yes
       vars:
         packages:
-        - kubelet=1.25.10
-        - kubeadm=1.25.10
-        - kubectl=1.25.10
+        - kubelet=1.25.10-00
+        - kubeadm=1.25.10-00
+        - kubectl=1.25.10-00
 
     - name: Reinicia o kubelet
       service:
