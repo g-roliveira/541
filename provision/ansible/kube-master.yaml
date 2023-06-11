@@ -70,13 +70,54 @@
         group: suporte
         mode: 0644        
 
-    - name: Criando o arquivo etcd-v3.3.13-linux-amd64.tar
+    - name: Add Variaveis para Versão recente do etcdclient
+      set_fact:
+        etcd_ver: v3.4.26
+        google_url: https://storage.googleapis.com/etcd
+        github_url: https://github.com/etcd-io/etcd/releases/download
+        download_url: "{{ google_url }}"
+        etcd_tmp_dir: /tmp/etcd-download-test
+        ubuntu_binary_dir: /usr/local/bin
+
+    - name: Remove arquivos existentes do etcd
+      file:
+        path: "/tmp/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
+        state: absent
+
+    - name: Criando diretorio temporario para o etcd 
+      file:
+        path: "{{ etcd_tmp_dir }}"
+        state: directory
+        recurse: yes
+
+    - name: Download binarios etcd
+      get_url:
+        url: "{{ download_url }}/{{ etcd_ver }}/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
+        dest: "/tmp/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
+
+    - name: Extraindo binarios etcd
+      ansible.builtin.unarchive:
+        src: "/tmp/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
+        dest: /tmp/etcd-download-test
+        remote_src: yes
+        extra_opts: --strip-components=1
+
+    - name: Remove arquivos do etcd
+      file:
+        path: "/tmp/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
+        state: absent
+
+    - name: Copia binarios etcd
       copy:
-        src: files/etcd-v3.3.13-linux-amd64.tar
-        dest: /root/etcd-v3.3.13-linux-amd64.tar
-        owner: root
-        group: root
-        mode: '0644'   
+        src: "{{ etcd_tmp_dir }}/etcd"
+        dest: "{{ ubuntu_binary_dir }}/etcd"
+        mode: "0755"
+
+    - name: Copia binarios etcdctl
+      copy:
+        src: "{{ etcd_tmp_dir }}/etcdctl"
+        dest: "{{ ubuntu_binary_dir }}/etcdctl"
+        mode: "0755"
 
     - name: Adiciona uma chave de assinatura apt para o Docker
       apt_key:
