@@ -89,7 +89,6 @@
         etcd_ver: v3.4.26
         google_url: https://storage.googleapis.com/etcd
         github_url: https://github.com/etcd-io/etcd/releases/download
-        download_url: "{{ google_url }}"
         etcd_tmp_dir: /tmp/etcd-download-test
         ubuntu_binary_dir: /usr/local/bin
 
@@ -106,7 +105,7 @@
 
     - name: Download binarios etcd
       get_url:
-        url: "{{ download_url }}/{{ etcd_ver }}/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
+        url: "{{ google_url }}/{{ etcd_ver }}/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
         dest: "/tmp/etcd-{{ etcd_ver }}-linux-amd64.tar.gz"
 
     - name: Extraindo binarios etcd
