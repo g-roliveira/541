@@ -1,1 +1,1 @@
-kubeadm join 172.16.1.100:6443 --token nlxoi5.m5j863tm1p1qi4od --discovery-token-ca-cert-hash sha256:1f55ecf8dded94951cbab6417e2c7940d001ed75be34a89042142e554cb02279 
+kubeadm join 172.16.1.100:6443 --token n7bb5j.syyk2ll3it6hfofj --discovery-token-ca-cert-hash sha256:d306b1543e36f0c305010434ac5882b201eaaf0ed9f9afcba4e9b80a05cf3b72 
