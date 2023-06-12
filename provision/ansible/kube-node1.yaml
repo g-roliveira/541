@@ -7,7 +7,9 @@
     - name: Executa Tarefas Communs nos nós do Kubernetes
       include_tasks:
         common-tasks.yaml
-        
+
+    - meta: flush_handlers
+
     - name: Cria o diretório data
       file:
         path: /home/suporte/data
@@ -23,23 +25,6 @@
         owner: suporte
         group: suporte
         mode: 0644
-
-    - name: Verificar se o arquivo existe
-      stat:
-        path: /etc/containerd/config.toml
-      register: file_stat
-
-    - name: Apagar o arquivo
-      file:
-        path: /etc/containerd/config.toml
-        state: absent
-      when: file_stat.stat.exists
-
-    - name: restart containerd
-      systemd:
-        name: containerd
-        state: restarted
-        enabled: yes
 
     - name: Copia o arquivo join-command.sh
       copy: src=join-command dest=/tmp/join-command.sh mode=0777
