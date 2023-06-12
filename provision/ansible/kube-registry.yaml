@@ -86,17 +86,16 @@
         dest: /home/suporte/auth
         mode: 0664
 
-    - name: Criando o arquivo registry.crt
+    - name: Copia arquivos do registry para os nós do cluster
       copy:
-        src: files/registry.crt
-        dest: /home/suporte/certs
-        mode: 0664
-
-    - name: Criando o arquivo registry.key
-      copy:
-        src: files/registry.key
-        dest: /home/suporte/certs
-        mode: 0664
+        src: "files/{{ item.src }}"
+        dest: "/home/suporte/certs/{{ item.dest }}"
+        owner: suporte
+        group: suporte
+        mode: '0644'
+      with_items:
+        - { src: 'registry.crt', dest: 'registry.crt' }
+        - { src: 'registry.key', dest: 'registry.key' }
 
     - name: Criando o arquivo docker-compose.yaml
       copy:
