@@ -47,12 +47,15 @@
         - vim
         - nano
         
-    - name: Clona repositório com os arquivos do curso para a HOME do usuario suporte
-      git:
-        repo: 'https://github.com/4linux/4541.git'
-        dest: /home/suporte/4541
-      become: true
-      become_user: suporte
+    - name: Remove o diretório se ele já existir
+      file:
+        path: /home/suporte/4541
+        state: absent
+
+    - name: Clona repositorio com os arquivos do curso para a HOME do usuario suporte
+      shell: sudo -u suporte git clone https://github.com/4linux/4541.git /home/suporte/4541
+      args:
+        executable: /bin/bash
               
     - name: Adiciona usuario devops
       user:
