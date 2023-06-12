@@ -6,8 +6,10 @@
   tasks:
     - name: Executa Tarefas Communs nos nós do Kubernetes
       ansible.builtin.include_tasks:
-        common-tasks.yaml
+        common-tasks.yaml    
 
+    - meta: flush_handlers
+    
     - name: Add Variaveis para Versão recente do etcdclient
       set_fact:
         etcd_ver: v3.4.26
@@ -127,4 +129,4 @@
       systemd:
         name: sshd
         state: restarted
-
+        
