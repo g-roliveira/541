@@ -73,6 +73,49 @@
   notify: restart containerd
 - meta: flush_handlers
 
+- name: Configurando containerd config_path registrys
+  lineinfile:
+    path: /etc/containerd/config.toml
+    regexp: 'config_path = ""'
+    line: '      config_path = "/etc/containerd/certs.d"'
+  notify: restart containerd
+- meta: flush_handlers
+
+- name: Criando diretorio do registry e certificados
+  file:
+    path: "/etc/containerd/certs.d/registry:5000"
+    state: directory
+    mode: '0755'
+
+- name: Copia arquivos do registry para os nós do cluster
+  copy:
+    src: "files/{{ item.src }}"
+    dest: "/etc/containerd/certs.d/registry:5000/{{ item.dest }}"
+    mode: '0644'
+  with_items:
+    - { src: 'ca.crt', dest: 'ca.crt' }
+    - { src: 'registry.crt', dest: 'client.crt' }
+    - { src: 'registry.key', dest: 'client.key' }
+
+- name: Configure hosts.toml do registry
+  blockinfile:
+    path: "/etc/containerd/certs.d/registry:5000/hosts.toml"
+    create: yes
+    block: |
+      server = "https://registry:5000"
+
+      [host]
+        capabilities = ["pull", "resolve", "push"]
+
+      [client]
+        crt = "/etc/containerd/certs.d/registry:5000/client.crt"
+        key = "/etc/containerd/certs.d/registry:5000/client.key"
+
+      [ca]
+        crt = "/etc/containerd/certs.d/registry:5000/ca.crt"
+  notify: restart containerd
+- meta: flush_handlers
+              
 - name: Garantindo /etc/hosts
   lineinfile:
     path: /etc/hosts
@@ -95,7 +138,7 @@
     line: 'suporte ALL=(ALL:ALL) NOPASSWD: ALL'
     validate: 'visudo -cf %s'
   notify: Reiniciar o servico sshd
-- meta: flush_handlers  
+- meta: flush_handlers
 
 - name: Instala pacotes que permitem que o apt seja usado sobre HTTPS
   apt:
