@@ -6,7 +6,7 @@
   tasks:
     - name: Executa Tarefas Communs nos nós do Kubernetes
       ansible.builtin.include_tasks:
-        common-tasks.yaml    
+        common-tasks.yaml
 
     - name: Add Variaveis para Versão recente do etcdclient
       set_fact:
@@ -57,7 +57,7 @@
         mode: "0755"
 
     - name: Inicializa o cluster Kubernetes atraves da ferramenta kubeadm
-      shell: kubeadm init --apiserver-advertise-address="172.16.1.100" --apiserver-cert-extra-sans="172.16.1.100" --node-name kube-master --pod-network-cidr=192.168.0.0/16 --kubernetes-version=1.25.10 --cri-socket unix:///var/run/cri-dockerd.sock --ignore-preflight-errors=all > /opt/init_cluster
+      shell: kubeadm init --apiserver-advertise-address="172.16.1.100" --apiserver-cert-extra-sans="172.16.1.100" --node-name kube-master --pod-network-cidr=192.168.0.0/16 --kubernetes-version=1.25.10 --ignore-preflight-errors=all > /opt/init_cluster
       args:
         creates: /opt/init_cluster
         
@@ -111,11 +111,20 @@
 
     - name: Concatenate cri-socket argument to join command
       set_fact:
-        join_command_with_cri_socket: "{{ join_command.stdout_lines[0] }} --cri-socket unix:///var/run/cri-dockerd.sock --ignore-preflight-errors=all"
+        join_command_with_cri_socket: "{{ join_command.stdout_lines[0] }} --ignore-preflight-errors=all"
 
     - name: Copia o comando do join no arquivo local
       local_action: copy content="{{ join_command_with_cri_socket }}" dest="./join-command"
 
   handlers:
-    - name: docker status
-      service: name=docker state=started
+    - name: restart containerd
+      systemd:
+        name: containerd
+        state: restarted
+        enabled: yes
+
+    - name: Reiniciar o servico sshd
+      systemd:
+        name: sshd
+        state: restarted
+
