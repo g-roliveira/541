@@ -56,16 +56,16 @@
     path: /etc/hosts
     line: "{{ item }}"
   with_items:
-    - 172.16.1.100 kube-master
-    - 172.16.1.101 kube-node1
-    - 172.16.1.102 kube-node2
-    - 172.16.1.103 registry
+  - 172.16.1.100 kube-master
+  - 172.16.1.101 kube-node1
+  - 172.16.1.102 kube-node2
+  - 172.16.1.103 registry
 
 - name: Adiciona usuario suporte
   user:
     name: suporte
     shell: /bin/bash
-    password : $1$QbUARykG$p2nthVG8AkDvabKPHwboa1
+    password: $1$QbUARykG$p2nthVG8AkDvabKPHwboa1
 
 - name: Adicionar suporte ao grupo sudo
   lineinfile:
@@ -77,7 +77,7 @@
   service:
     name: sshd
     state: restarted
-    
+
 - name: Instala pacotes que permitem que o apt seja usado sobre HTTPS
   apt:
     name: "{{ packages }}"
@@ -114,7 +114,7 @@
     owner: suporte
     group: suporte
     mode: '0755'
-    
+
 - name: Criando o arquivo id_rsa
   copy:
     src: files/id_rsa
@@ -122,14 +122,14 @@
     owner: suporte
     group: suporte
     mode: 0600
-    
+
 - name: Criando o arquivo id_rsa.pub
   copy:
     src: files/id_rsa.pub
     dest: /home/suporte/.ssh/id_rsa.pub
     owner: suporte
     group: suporte
-    mode: 0644     
+    mode: 0644
 
 - name: Instala o Docker e suas dependencias
   apt:
@@ -142,7 +142,7 @@
     - docker-ce-cli
     - containerd.io
   notify:
-    - docker status
+  - docker status
 
 - name: Adiciona o usuario suporte no grupo docker
   user:
@@ -164,7 +164,7 @@
     owner: suporte
     group: suporte
     mode: '0644'
-    
+
 - name: Criando o arquivo daemon.json
   copy:
     src: files/daemon.json
@@ -180,7 +180,7 @@
     owner: root
     group: root
     mode: '0755'
-    
+
 - name: Reinicia o Docker
   service:
     name: docker
@@ -299,4 +299,4 @@
   service:
     name: kubelet
     daemon_reload: yes
-    state: restarted    
+    state: restarted
