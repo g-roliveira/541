@@ -158,6 +158,25 @@
     - git
     - vim
     - nano
+    - bash-completion
+
+- name: Adicionar configuração do kubectl ao arquivo /etc/bash_completion.d/kubectl
+  lineinfile:
+    dest: /etc/bash_completion.d/kubectl
+    line: "source <(kubectl completion bash)"
+    state: present
+
+- name: Adicionar alias 'k' ao arquivo ~/.bashrc
+  lineinfile:
+    dest: ~/.bashrc
+    line: "alias k=kubectl"
+    state: present
+
+- name: Adicionar comando de conclusão do kubectl ao arquivo ~/.bashrc
+  lineinfile:
+    dest: ~/.bashrc
+    line: "complete -o default -F __start_kubectl k"
+    state: present
 
 - name: Remove o diretório se ele já existir
   file:
